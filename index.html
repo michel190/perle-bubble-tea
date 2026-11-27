@@ -218,8 +218,9 @@ h1 em{display:block}
 .status i{width:7px;height:7px;border-radius:50%;background:#4CD07D;box-shadow:0 0 0 3px rgba(76,208,125,.25)}
 .status.closed i{background:#E5533D;box-shadow:0 0 0 3px rgba(229,83,61,.25)}
 .status .st-long{opacity:.75}
-.lang-btn{height:38px;min-width:42px;padding:0 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--hero-fg) 30%,transparent);font-family:var(--f-mono);font-size:12px;font-weight:500}
-.lang-btn:hover{background:color-mix(in srgb,var(--hero-fg) 10%,transparent)}
+.lang-sw{display:flex;padding:3px;border-radius:999px;border:1px solid color-mix(in srgb,var(--hero-fg) 30%,transparent)}
+.lang-sw button{height:30px;min-width:34px;padding:0 8px;border-radius:999px;font-family:var(--f-mono);font-size:12px;font-weight:500;opacity:.6;transition:background .2s,color .2s,opacity .2s}
+.lang-sw button[aria-pressed="true"]{background:var(--hero-fg);color:var(--bg2);opacity:1}
 /* étape coordonnées */
 .back{align-self:flex-start;font-size:13px;font-weight:700;color:var(--ink-soft);padding:4px 0}
 .back:hover{color:var(--ink)}
@@ -323,7 +324,7 @@ textarea.msg{width:100%;min-height:150px;font-family:var(--f-mono);font-size:11.
   </nav>
   <div class="nav-right">
     <span class="status" id="status" role="status"></span>
-    <button class="lang-btn" id="langBtn" data-i18n="lang_btn" data-i18n-aria="lang_aria">EN</button>
+    <div class="lang-sw" id="langSw" role="group" aria-label="Langue / Language"><button data-l="fr" aria-pressed="true">FR</button><button data-l="en" aria-pressed="false">EN</button></div>
     <button class="cart-btn" id="navCart" data-i18n-aria="open_cart">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1.2 12.2a1 1 0 0 1-1 .8H8.2a1 1 0 0 1-1-.8z"/><path d="M5 8h14M9 8l1-5h4"/></svg>
       <span class="cart-lbl" data-i18n="nav_order">Commande</span> <b id="navCount">0</b>
@@ -1084,16 +1085,18 @@ function applyStatic(){
   document.querySelectorAll('[data-i18n-aria]').forEach(e => e.setAttribute('aria-label', s[e.dataset.i18nAria]));
   [...thumbs.children].forEach((b,i) => b.setAttribute('aria-label', tx(DRINKS[i],'full')));
 }
-document.getElementById('langBtn').onclick = () => {
-  LANG = LANG==='fr' ? 'en' : 'fr'; writeLS('perle-lang', LANG);
+function syncLangSw(){ document.querySelectorAll('#langSw button').forEach(b => b.setAttribute('aria-pressed', b.dataset.l===LANG)); }
+document.getElementById('langSw').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.dataset.l===LANG) return;
+  LANG = b.dataset.l; writeLS('perle-lang', LANG); syncLangSw();
   applyStatic(); renderChips(); renderGrid(false); renderCart(); renderStatus(); fresh();
   fillText(DRINKS[cur], cur); setMarquee(DRINKS[cur]);
-};
+});
 
 /* ───────── DÉMARRAGE ───────── */
 applyTheme(DRINKS[0].theme);
 imgs[0].style.height = (DRINKS[0].h || 100) + '%';
-applyStatic(); renderStatus(); setInterval(renderStatus, 60000);
+applyStatic(); syncLangSw(); renderStatus(); setInterval(renderStatus, 60000);
 fillText(DRINKS[0],0); setMarquee(DRINKS[0]); renderChips(); renderGrid(); renderCart();
 if (!reduce){
   gsap.from('.hero-copy .swap', {yPercent:110, duration:1, stagger:.08, ease:'power3.out', delay:.15});
