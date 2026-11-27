@@ -25,3 +25,11 @@ Dans `index.html` :
 - numéro WhatsApp : `WHATSAPP_NUMBER`
 - boissons et prix : tableau `DRINKS`
 - horaires : `SCHEDULE` (et le texte `hours` dans `STR`)
+
+## Sécurité
+
+- Site statique : pas de serveur, pas de base de données, aucun paiement en ligne.
+- Les bibliothèques (GSAP, three.js, Leaflet) sont hébergées dans `vendor/`, sans dépendre d'un CDN externe.
+- `_headers` : en-têtes de sécurité appliqués par Netlify (CSP, anti-iframe, HSTS, position autorisée seulement pour ce site).
+- Les textes saisis par les clients sont échappés avant affichage.
+- Le prénom, le nom et le téléphone du client sont mémorisés uniquement dans son propre navigateur pour la prochaine commande ; la position n'est jamais enregistrée.

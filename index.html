@@ -1027,9 +1027,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
   <div class="foot-legal"><span data-i18n="foot_legal">© 2026 Perle</span><span data-i18n="foot_cups">Les gobelets sont recyclables, rapportez-les pour 100 FCFA de remise.</span></div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="vendor/gsap-3.12.5.min.js"></script>
+<script src="vendor/three-r128.min.js"></script>
+<script src="vendor/leaflet-1.9.4.js"></script>
 <script>
 (() => {
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1488,7 +1488,10 @@ const modeLabel = (id, lang=LANG) => MODES.find(m=>m.id===id)[lang];
 
 let cart = readLS('perle-cart');
 if (!cart || !Array.isArray(cart.items)) cart = {items:[], mode:'emporter'};
-cart.items = cart.items.filter(x => DRINKS.some(d => d.id===x.id));
+// on ne garde que des lignes valides (protège contre un stockage local modifié)
+cart.items = cart.items.filter(x => x && DRINKS.some(d => d.id===x.id) && (x.size==='M' || x.size==='L'))
+  .map(x => ({key: x.id+'|'+x.size, id: x.id, size: x.size, qty: Math.min(20, Math.max(1, parseInt(x.qty,10) || 1))}));
+if (!MODES.some(m => m.id===cart.mode)) cart.mode = 'emporter';
 const save = () => writeLS('perle-cart', {items:cart.items, mode:cart.mode});
 const client = Object.assign({first:'', last:'', phone:'', addr:'', note:'', pay:'cash'}, readLS('perle-client') || {});
 if (!PAYS.includes(client.pay)) client.pay = 'cash';
