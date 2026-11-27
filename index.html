@@ -266,6 +266,14 @@ textarea.msg{width:100%;min-height:150px;font-family:var(--f-mono);font-size:11.
   .hero-copy{grid-row:1;padding-bottom:0}
   .stage{grid-row:2;height:460px}
   .hero-side{grid-row:3;justify-self:stretch;max-width:none;padding-bottom:40px}
+  /* tout centré quand la page est empilée (téléphone, tablette) */
+  .hero-copy,.hero-side{align-items:center;text-align:center}
+  .eyebrow{justify-content:center}
+  .eyebrow::before{display:none}
+  .hero-desc{margin-inline:auto}
+  .cta,.side-foot{justify-content:center}
+  .fresh{align-self:center}
+  .hero-side .thumbs{width:100%;max-width:420px}
 }
 @media (max-width:720px){
   .nav-links{display:none}
