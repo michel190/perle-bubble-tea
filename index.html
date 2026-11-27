@@ -918,6 +918,22 @@ svg.leaflet-image-layer.leaflet-interactive path {
 .pin-icon span{position:absolute;left:3px;top:0;width:26px;height:26px;border-radius:50% 50% 50% 0;background:var(--accent);transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 4px 10px rgba(0,0,0,.4)}
 .pin-icon span::after{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff}
 .pin-icon i{position:absolute;left:11px;top:34px;width:10px;height:4px;border-radius:50%;background:rgba(0,0,0,.35)}
+.verify{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(20,12,8,.7);padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));overflow:auto}
+.verify-card{width:min(480px,100%);background:var(--paper);color:var(--ink);border-radius:24px;padding:26px;display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 60px rgba(0,0,0,.4)}
+.verify-card h2{font-family:var(--f-display);font-weight:400;font-size:30px;margin:0}
+.verify-k{margin:0;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.verify-ok,.verify-bad{margin:0;padding:12px 14px;border-radius:12px;font-weight:700;font-size:14px}
+.verify-ok{background:#EAF6EE;color:#1E6B3D}
+.verify-bad{background:#FDECEA;color:#8A2A1E}
+.verify-t{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.verify-t td{padding:7px 0;vertical-align:top}
+.verify-t td:first-child{width:40px;color:var(--ink-soft)}
+.verify-t td:last-child{text-align:right;font-weight:700;white-space:nowrap}
+.verify-t small{color:var(--ink-soft)}
+.verify-t .sep td{border-top:1px solid var(--line)}
+.verify-t .tot td{font-size:17px;font-weight:800;border-top:1px dashed var(--line);padding-top:10px}
+.verify-m{margin:0;font-size:13px;color:var(--ink-soft)}
+.verify .btn-ghost{align-self:flex-start;color:var(--ink);border-color:var(--line)}
 </style>
 
 <header class="nav">
@@ -1535,6 +1551,8 @@ function buildMsg(){
   }
   L.push(`Paiement : ${payLabel(client.pay,'fr')}`);
   if (client.note.trim()) L.push(`Note : ${client.note.trim()}`);
+  const code = orderCode();
+  L.push('', `Code de vérification : ${code}`, `Vérifier la commande : ${verifyUrl(code)}`);
   return L.join('\n');
 }
 const waUrl = () => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMsg())}`;
@@ -1801,8 +1819,69 @@ document.getElementById('langSw').addEventListener('click', e => {
   fillText(DRINKS[cur], cur); setMarquee(DRINKS[cur]);
 });
 
+/* ───────── VÉRIFICATION DES COMMANDES (pour la boutique) ─────────
+   Le texte WhatsApp reste modifiable par le client. Le code ci-dessous résume la commande ;
+   la page de vérification recalcule tout avec les prix du site, donc un total modifié se voit. */
+const MODE_KEYS = {livraison:'l', place:'p', emporter:'e'};
+function checksum(str){
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  return (h % 1679616).toString(36).toUpperCase().padStart(4, '0');
+}
+function orderCode(){
+  const items = cart.items.map(x => DRINKS.findIndex(d => d.id===x.id) + x.size + x.qty).join('.');
+  const body = `${(orderNum||'#P-0000').replace('#P-','')}-${items}-${MODE_KEYS[cart.mode]}`;
+  return `${body}-${checksum(body)}`;
+}
+function verifyUrl(code){
+  const base = location.origin && location.origin !== 'null' ? location.origin + location.pathname : 'https://perle-bubble-tea.netlify.app/';
+  return `${base.split('#')[0]}#v-${code}`;
+}
+function decodeOrder(code){
+  const m = /^(\d{4})-([0-9LM.]+)-([lpe])-([0-9A-Z]{4})$/.exec(code);
+  if (!m) return null;
+  const body = `${m[1]}-${m[2]}-${m[3]}`;
+  const items = [];
+  for (const part of m[2].split('.')){
+    const q = /^(\d+)([ML])(\d{1,2})$/.exec(part);
+    if (!q || !DRINKS[+q[1]] || +q[3] < 1 || +q[3] > 20) return null;
+    items.push({id: DRINKS[+q[1]].id, size: q[2], qty: +q[3]});
+  }
+  const mode = Object.keys(MODE_KEYS).find(k => MODE_KEYS[k]===m[3]);
+  return {num: '#P-' + m[1], items, mode, valid: checksum(body) === m[4]};
+}
+function showVerification(){
+  const h = decodeURIComponent(location.hash || '');
+  if (!h.startsWith('#v-')) return false;
+  const o = decodeOrder(h.slice(3).trim());
+  const wrap = document.createElement('div');
+  wrap.className = 'verify'; wrap.setAttribute('role', 'dialog'); wrap.setAttribute('aria-label', 'Vérification de commande');
+  if (!o){
+    wrap.innerHTML = `<div class="verify-card"><h2>Code illisible</h2><p class="verify-bad">Ce code de vérification est incomplet ou a été modifié. Demandez au client de renvoyer la commande depuis le site.</p><a class="btn-ghost" href="#top">Aller au site</a></div>`;
+  } else {
+    const rows = o.items.map(x => { const d = DRINKS.find(d=>d.id===x.id);
+      return `<tr><td>${x.qty} ×</td><td>${esc(d.full)} <small>taille ${x.size}</small></td><td>${fcfa(unit(d,x)*x.qty)}</td></tr>`; }).join('');
+    const sub = o.items.reduce((s,x) => s + unit(DRINKS.find(d=>d.id===x.id), x) * x.qty, 0);
+    const fee = o.mode==='livraison' ? (sub >= 15000 ? 0 : 1000) : 0;
+    wrap.innerHTML = `<div class="verify-card">
+      <p class="verify-k">Vérification boutique</p>
+      <h2>Commande ${esc(o.num)}</h2>
+      <p class="${o.valid ? 'verify-ok' : 'verify-bad'}">${o.valid ? '✓ Code authentique : voici la commande exacte passée sur le site.' : '⚠️ Le code a été modifié : ne vous fiez pas à cette commande, appelez le client.'}</p>
+      <table class="verify-t">${rows}
+        <tr class="sep"><td></td><td>Sous-total</td><td>${fcfa(sub)}</td></tr>
+        ${o.mode==='livraison' ? `<tr><td></td><td>Livraison</td><td>${fee ? fcfa(fee) : 'offerte'}</td></tr>` : ''}
+        <tr class="tot"><td></td><td>Total à encaisser</td><td>${fcfa(sub+fee)}</td></tr></table>
+      <p class="verify-m">Mode : ${esc(modeLabel(o.mode,'fr'))}. Si le total du message WhatsApp est différent, c’est le total ci-dessus qui compte.</p>
+      <a class="btn-ghost" href="#top" id="closeVerify">Fermer</a></div>`;
+  }
+  document.body.appendChild(wrap);
+  wrap.querySelector('a').addEventListener('click', () => wrap.remove());
+  return true;
+}
+
 /* ───────── DÉMARRAGE ───────── */
 applyTheme(DRINKS[0].theme);
+showVerification();
 imgs[0].style.height = (DRINKS[0].h || 100) + '%';
 applyStatic(); syncLangSw(); renderStatus(); setInterval(renderStatus, 60000);
 fillText(DRINKS[0],0); setMarquee(DRINKS[0]); renderChips(); renderGrid(); renderCart();
