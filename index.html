@@ -1532,27 +1532,54 @@ const mapsUrl = g => `https://www.google.com/maps/search/?api=1&query=${g.lat},$
 const dirUrl = g => `https://www.google.com/maps/dir/?api=1&destination=${g.lat},${g.lng}`;
 
 // message envoyé à la boutique (toujours en français)
+// message envoyé à la boutique, mis en forme comme un ticket de caisse (toujours en français)
+const TW = 32; // largeur du ticket, en caractères (police à chasse fixe de WhatsApp)
+const num = n => Math.round(n).toLocaleString('fr-FR').replace(/\s/g, ' ');
+const tLine = (l, r='') => { l = String(l); r = String(r); if (!r) return l; const sp = TW - l.length - r.length; return sp >= 1 ? l + ' '.repeat(sp) + r : l + '\n' + ' '.repeat(Math.max(0, TW - r.length)) + r; };
+const tCenter = t => { t = String(t); const sp = Math.max(0, Math.floor((TW - t.length) / 2)); return ' '.repeat(sp) + t; };
+const tWrap = (t, indent='') => {
+  const out = []; let cur = '';
+  String(t).split(/\s+/).filter(Boolean).forEach(w => {
+    while (w.length > TW - indent.length){ if (cur){ out.push(cur); cur = ''; } out.push(indent + w.slice(0, TW - indent.length)); w = w.slice(TW - indent.length); }
+    if (!w) return;
+    const next = cur ? cur + ' ' + w : indent + w;
+    if (next.length > TW){ out.push(cur); cur = indent + w; } else cur = next;
+  });
+  if (cur) out.push(cur);
+  return out;
+};
 function buildMsg(){
-  const t = totals(), L = [];
-  const st = shopStatus();
-  L.push(st.open ? `Bonjour Perle ! Nouvelle commande ${orderNum}` : `Bonjour Perle ! Précommande ${orderNum} (boutique fermée, à préparer à l’ouverture)`, '');
+  const t = totals(), st = shopStatus(), now = new Date();
+  const dash = '-'.repeat(TW), eq = '='.repeat(TW);
+  const date = now.toLocaleDateString('fr-FR'), time = now.toTimeString().slice(0,5);
+  const T = [];
+  T.push(tCenter('PERLE BUBBLE TEA'), tCenter('Lomé · +228 92 66 50 01'), dash);
+  T.push(tLine(st.open ? 'COMMANDE ' + orderNum : 'PRÉCOMMANDE ' + orderNum), tLine(date, time));
+  if (!st.open) T.push(...tWrap('Boutique fermée : à préparer à l’ouverture.'));
+  T.push(dash);
   cart.items.forEach(x => { const d = DRINKS.find(d=>d.id===x.id);
-    L.push(`• ${x.qty} × ${d.full} (taille ${x.size}, ${x.size==='M'?'500':'700'} ml) : ${fcfa(unit(d,x)*x.qty)}`); });
-  L.push('', `Sous-total : ${fcfa(t.sub)}`);
-  if (cart.mode==='livraison') L.push(`Livraison : ${t.fee ? fcfa(t.fee) : 'offerte'}`);
-  L.push(`TOTAL : ${fcfa(t.total)}`, '');
-  L.push(`Mode : ${modeLabel(cart.mode,'fr')}`);
-  L.push(`Client : ${client.first.trim()} ${client.last.trim()}`);
-  L.push(`Téléphone : ${client.phone.trim()}`);
-  if (cart.mode==='livraison'){
-    if (geo){ L.push(geo.pinned ? `Position épinglée par le client sur la carte : ${mapsUrl(geo)}` : `Position GPS (±${Math.round(geo.acc)} m) : ${mapsUrl(geo)}`); L.push(`Itinéraire : ${dirUrl(geo)}`); }
-    else L.push('Position GPS : je vous l’envoie juste après ce message (trombone → Position)');
-    if (client.addr.trim()) L.push(`Adresse / repère : ${client.addr.trim()}`);
-  }
-  L.push(`Paiement : ${payLabel(client.pay,'fr')}`);
-  if (client.note.trim()) L.push(`Note : ${client.note.trim()}`);
+    T.push(...tWrap(`${d.full.toUpperCase()} ${x.size} (${x.size==='M'?'500':'700'} ml)`));
+    T.push(tLine(`  ${x.qty} x ${num(unit(d,x))}`, num(unit(d,x)*x.qty)));
+  });
+  T.push(dash);
+  T.push(tLine(`SOUS-TOTAL (${t.n} art.)`, num(t.sub)));
+  if (cart.mode==='livraison') T.push(tLine('LIVRAISON', t.fee ? num(t.fee) : 'OFFERTE'));
+  T.push(eq, tLine('TOTAL FCFA', num(t.total)), eq);
+  T.push(tLine('MODE', modeLabel(cart.mode,'fr').toUpperCase()), tLine('PAIEMENT', payLabel(client.pay,'fr').toUpperCase()));
+  T.push(dash);
+  T.push(...tWrap(`CLIENT ${client.first.trim()} ${client.last.trim()}`.toUpperCase()));
+  T.push(tLine('TEL', client.phone.trim()));
+  if (cart.mode==='livraison' && client.addr.trim()) T.push(...tWrap('ADRESSE ' + client.addr.trim()));
+  if (client.note.trim()) T.push(...tWrap('NOTE ' + client.note.trim()));
   const code = orderCode();
-  L.push('', `Code de vérification : ${code}`, `Vérifier la commande : ${verifyUrl(code)}`);
+  T.push(dash, tLine('CODE', code), dash, tCenter('MERCI ET À BIENTÔT !'));
+  // le ticket dans un bloc à chasse fixe ; les liens en dessous pour rester cliquables
+  const L = ['```', ...T, '```', ''];
+  if (cart.mode==='livraison'){
+    if (geo){ L.push(geo.pinned ? `📍 Position épinglée sur la carte : ${mapsUrl(geo)}` : `📍 Position GPS (±${Math.round(geo.acc)} m) : ${mapsUrl(geo)}`); L.push(`🛵 Itinéraire : ${dirUrl(geo)}`); }
+    else L.push('📍 Position GPS : je vous l’envoie juste après ce message (trombone → Position)');
+  }
+  L.push(`✅ Vérifier la commande : ${verifyUrl(code)}`);
   return L.join('\n');
 }
 const waUrl = () => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildMsg())}`;
