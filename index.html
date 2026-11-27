@@ -6,7 +6,7 @@
 <meta name="description" content="Perle, bubble tea préparé à la minute. Commandez en ligne, livraison ou à emporter.">
 </head>
 <body style="margin:0">
-<title>Perle Bubble Tea</title>
+<title>Perle Bubble Tea · Commande en ligne et livraison</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
   /* thème courant (réécrit par le JS à chaque boisson) */
   --bg1:#3A1D05; --bg2:#120802; --glow:rgba(255,150,20,.45); --hero-fg:#FFF1DC; --accent:#E5700A; --accent-ink:#FFFFFF; --tint:#FFF2DC;
   /* neutres fixes */
-  --ink:#24160F; --ink-soft:#6E5B50; --paper:#FFFDFA; --line:rgba(36,22,15,.10); --night:#140C08;
+  --ink:#24160F; --ink-soft:#574438; --paper:#FFFDFA; --line:rgba(36,22,15,.10); --night:#140C08;
   --f-display:"Gloock", "Times New Roman", Georgia, serif;
   --f-body:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -67,7 +67,10 @@ em{font-style:italic}
 .swap{display:inline-block;will-change:transform}
 h1{font-family:var(--f-display);font-weight:400;font-size:clamp(46px,5.6vw,84px);line-height:.95;letter-spacing:-.02em;margin:0;text-wrap:balance}
 h1 em{display:block}
-.hero-desc{max-width:34ch;font-size:15px;opacity:.82;margin:0}
+.hero-desc{max-width:34ch;font-size:15px;opacity:.88;margin:0}
+.hero-copy{text-shadow:0 2px 18px rgba(0,0,0,.35)}
+.cta .btn-ghost{background:var(--hero-fg);color:var(--bg2);border-color:transparent;text-shadow:none;box-shadow:0 14px 30px -14px rgba(0,0,0,.6)}
+.cta .btn-ghost:hover{background:var(--hero-fg);filter:brightness(1.05)}
 .specs{display:grid;grid-template-columns:repeat(3,auto);justify-content:start;gap:4px 26px;margin:0;padding-top:16px;border-top:1px solid color-mix(in srgb,var(--hero-fg) 20%,transparent)}
 .specs dt{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.6}
 .specs dd{margin:0;font-weight:700;font-size:15px;font-variant-numeric:tabular-nums}
@@ -97,7 +100,7 @@ h1 em{display:block}
 .thumb:hover{opacity:1;transform:translateY(-3px)}
 .thumb[aria-selected="true"]{opacity:1;border-color:var(--hero-fg);transform:translateY(-4px)}
 .side-foot{display:flex;align-items:center;gap:14px}
-.counter{font-family:var(--f-mono);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.counter{font-family:var(--f-mono);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .progress{flex:1;height:2px;background:color-mix(in srgb,var(--hero-fg) 20%,transparent);border-radius:2px;overflow:hidden}
 .progress i{display:block;height:100%;width:100%;background:var(--hero-fg);transform-origin:left;transform:scaleX(0)}
 .arrows{display:flex;gap:6px}
@@ -118,8 +121,9 @@ h1 em{display:block}
 .search input{width:100%;padding:13px 16px 13px 42px;border-radius:999px;border:1px solid var(--line);background:var(--tint);outline:none}
 .search input:focus{border-color:var(--accent)}
 .search svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);opacity:.5}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
-.chip{padding:9px 18px;border-radius:999px;border:1px solid var(--line);font-weight:600;font-size:13px;background:var(--paper);transition:background .2s,color .2s}
+.chips{display:flex;flex-wrap:nowrap;gap:8px;margin-bottom:24px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:9px 18px;border-radius:999px;border:1px solid var(--line);font-weight:600;font-size:13px;background:var(--paper);transition:background .2s,color .2s}
 .chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .chip small{opacity:.6;margin-left:4px;font-variant-numeric:tabular-nums}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:14px}
@@ -133,12 +137,12 @@ h1 em{display:block}
 .card-title{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .card-title h3{margin:0;font-size:15px;font-weight:800;letter-spacing:-.01em}
 .card-title .price{font-size:14px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
-.card-desc{margin:0;color:var(--ink-soft);font-size:12px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-desc{margin:0;color:var(--ink-soft);font-size:12.5px;line-height:1.45}
 .opt{display:flex;flex-direction:column;gap:6px}
-.opt-label{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.opt-label{display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
 .seg{display:flex;gap:5px;flex-wrap:wrap}
 .seg button{flex:1;min-width:0;padding:7px 6px;border-radius:10px;border:1px solid var(--line);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;transition:background .2s,border-color .2s}
-.seg button[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 16%,var(--paper));border-color:var(--accent);color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .toggle{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13px;font-weight:600;cursor:pointer}
 .toggle input{appearance:none;width:36px;height:20px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;transition:background .2s;flex:none}
 .toggle input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
@@ -195,7 +199,8 @@ h1 em{display:block}
 .cart-bar{position:fixed;z-index:50;left:0;right:0;margin:0 auto;width:min(560px,calc(100% - 32px));bottom:calc(18px + env(safe-area-inset-bottom,0px));
   display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 24px;border-radius:999px;background:var(--ink);color:var(--paper);font-weight:800;font-size:14px;box-shadow:0 18px 40px -14px rgba(0,0,0,.6);transition:transform .4s cubic-bezier(.2,.8,.2,1)}
 .cart-bar.hide{transform:translateY(180%)}
-.cart-bar span{font-variant-numeric:tabular-nums}
+.cart-bar span{font-variant-numeric:tabular-nums;white-space:nowrap}
+.cart-bar b{white-space:nowrap}
 .cart-bar b{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:var(--accent);color:var(--accent-ink)}
 
 /* fly-to-cart */
@@ -209,6 +214,8 @@ h1 em{display:block}
 .foot p,.foot li{margin:0;font-size:14px;line-height:1.8}
 .foot ul{list-style:none;margin:0;padding:0}
 .foot .hours{font-variant-numeric:tabular-nums}
+.foot-link{color:#fff;text-decoration:underline;text-underline-offset:3px}
+.foot-allergens{max-width:1360px;margin:28px auto 0;font-size:13px;color:#B9A497}
 .foot-legal{max-width:1360px;margin:40px auto 0;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:#8F7A6D;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
 /* barre de navigation : statut + langue */
@@ -303,6 +310,10 @@ textarea.msg{width:100%;min-height:150px;font-family:var(--f-mono);font-size:11.
   .marquee{top:24%}
   .scroll-hint{display:none}
   .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .shop{padding-block:24px 64px}
+  .cart-bar{padding:10px 10px 10px 18px;font-size:13px}
+  .cart-bar b{padding:9px 14px}
+  .chips{margin-inline:-4px;padding-inline:4px}
   .card-foot{flex-direction:column;align-items:stretch}
   .card-foot .stepper{justify-content:space-between}
   .card-title{flex-direction:column;gap:2px}
@@ -320,13 +331,13 @@ textarea.msg{width:100%;min-height:150px;font-family:var(--f-mono);font-size:11.
   <nav class="nav-links" aria-label="Principal">
     <a href="#top" aria-current="page" data-i18n="nav_home">Accueil</a>
     <a href="#menu" data-i18n="nav_menu">La carte</a>
-    <a href="#infos" data-i18n="nav_shop">Boutique</a>
+    <a href="#infos" data-i18n="nav_shop">Nous trouver</a>
   </nav>
   <div class="nav-right">
     <span class="status" id="status" role="status"></span>
     <div class="lang-sw" id="langSw" role="group" aria-label="Langue / Language"><button data-l="fr" aria-pressed="true">FR</button><button data-l="en" aria-pressed="false">EN</button></div>
     <button class="cart-btn" id="navCart" data-i18n-aria="open_cart">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8h12l-1.2 12.2a1 1 0 0 1-1 .8H8.2a1 1 0 0 1-1-.8z"/><path d="M5 8h14M9 8l1-5h4"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12a1.5 1.5 0 0 1-1.5 1.4h-9A1.5 1.5 0 0 1 6 20z"/><path d="M9 10V7a3 3 0 0 1 6 0v3"/></svg>
       <span class="cart-lbl" data-i18n="nav_order">Commande</span> <b id="navCount">0</b>
     </button>
   </div>
@@ -349,8 +360,8 @@ textarea.msg{width:100%;min-height:150px;font-family:var(--f-mono);font-size:11.
     </div>
 
     <div class="stage" id="stage">
-      <img class="cup" id="imgA" alt="" src="img/mangue-cut.webp?v=3">
-      <img class="cup" id="imgB" alt="" src="img/mangue-cut.webp?v=3" style="opacity:0">
+      <img class="cup" id="imgA" alt="Bubble tea mangue avec perles de tapioca" src="img/mangue-cut.webp?v=4">
+      <img class="cup" id="imgB" alt="" src="img/mangue-cut.webp?v=4" style="opacity:0">
     </div>
 
     <div class="hero-side">
@@ -367,7 +378,6 @@ textarea.msg{width:100%;min-height:150px;font-family:var(--f-mono);font-size:11.
       </div>
     </div>
   </div>
-  <a class="scroll-hint mono" href="#menu"><span data-i18n="scroll">Commander</span><i></i></a>
 </section>
 
 <section class="shop" id="menu">
@@ -404,22 +414,23 @@ textarea.msg{width:100%;min-height:150px;font-family:var(--f-mono);font-size:11.
   <div class="foot-inner">
     <div>
       <h3>Perle</h3>
-      <p data-i18n="foot_about">Bubble tea préparé à la minute.</p>
+      <p data-i18n="foot_about">Bubble tea préparé à la minute. Perles de tapioca roulées chaque matin, cuites par petites fournées.</p>
     </div>
     <div>
-      <h4 data-i18n="foot_shop">Boutique</h4>
-      <p>18 rue Oberkampf<br>75011 Paris</p>
+      <h4 data-i18n="foot_shop">Nous trouver</h4>
+      <p>Lomé, Togo<br>WhatsApp : <a class="foot-link" href="https://wa.me/22892665001" target="_blank" rel="noopener">+228 92 66 50 01</a></p>
     </div>
     <div>
       <h4 data-i18n="foot_hours">Horaires</h4>
-      <ul class="hours" data-i18n-html="hours"></ul>
+      <ul class="hours" data-i18n-html="hours"><li>Lun – Jeu · 11:00 – 21:00</li><li>Ven – Sam · 11:00 – 23:00</li><li>Dim · 12:00 – 20:00</li></ul>
     </div>
     <div>
       <h4 data-i18n="foot_delivery">Livraison</h4>
-      <p data-i18n-html="foot_del"></p>
+      <p data-i18n-html="foot_del">1 000 FCFA dans un rayon de 3 km<br>Offerte dès 15 000 FCFA d’achat</p>
     </div>
   </div>
-  <div class="foot-legal"><span data-i18n="foot_legal"></span><span data-i18n="foot_cups"></span></div>
+  <p class="foot-allergens" data-i18n="foot_allergens">Allergènes : les boissons lactées contiennent du lait. Composition détaillée sur demande.</p>
+  <div class="foot-legal"><span data-i18n="foot_legal">© 2026 Perle</span><span data-i18n="foot_cups">Les gobelets sont recyclables, rapportez-les pour 100 FCFA de remise.</span></div>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -459,14 +470,14 @@ const SIZE_L = 500;
 /* ───────── TEXTES FR / EN ───────── */
 const STR = {
   fr:{
-    nav_home:'Accueil', nav_menu:'La carte', nav_shop:'Boutique', nav_order:'Commande', open_cart:'Ouvrir la commande',
+    nav_home:'Accueil', nav_menu:'La carte', nav_shop:'Nous trouver', nav_order:'Commande', open_cart:'Ouvrir la commande',
     lang_btn:'EN', lang_aria:'Switch to English',
     see_menu:'Voir la carte', scroll:'Commander', choose:'Choisir une boisson', prev:'Boisson précédente', next:'Boisson suivante',
     side_title:'Infusé lentement,<br><em>servi bien frais</em>',
     side_text:'Thés infusés à froid douze heures, laits entiers, fruits pressés le matin. Les perles de tapioca sont recuites toutes les quatre heures.',
     fresh_now:'Perles tout juste cuites', fresh:x=>`Perles cuites il y a ${x}`,
     open:'Ouvert', closed:'Fermé', until:h=>`ferme à ${h}`, opens_today:h=>`ouvre à ${h}`, opens_tomorrow:h=>`ouvre demain à ${h}`,
-    closed_note:'La boutique est fermée pour le moment : votre commande sera préparée dès l’ouverture.',
+    closed_note:h=>`Boutique fermée (${h}). Vous pouvez précommander : elle sera préparée dès l’ouverture.`,
     menu_title:'La carte', menu_sub:'Choisissez votre boisson et sa taille, on s’occupe du reste.', search:'Rechercher une boisson',
     empty_grid:q=>`Aucune boisson ne correspond à « ${q} ». Essayez « matcha » ou « fraise ».`,
     size:'Taille', add:'Ajouter', added:'Ajouté ✓', less:'Retirer un', more:'Ajouter un',
@@ -480,22 +491,22 @@ const STR = {
     address:'Quartier, rue et repère', address_opt:'Précisions pour le livreur (facultatif)', address_ph:'Ex. Agoè, près de la pharmacie, portail bleu',
     payment:'Paiement', pay_cash_d:'Espèces à la livraison', pay_cash_p:'Espèces au comptoir',
     note:'Note pour la boutique (facultatif)', note_ph:'Ex. peu de glaçons, appeler en arrivant…',
-    send:'Envoyer la commande sur WhatsApp', required:'Champ obligatoire', phone_err:'Numéro incomplet', addr_err:'Partagez votre position ou indiquez votre adresse.',
+    send:'Envoyer la commande sur WhatsApp', send_pre:'Envoyer la précommande sur WhatsApp', required:'Champ obligatoire', phone_err:'Numéro incomplet', addr_err:'Partagez votre position ou indiquez votre adresse.',
     done_title:'Dernière étape dans WhatsApp', done_text:'WhatsApp s’ouvre avec votre commande déjà écrite. Appuyez sur Envoyer pour nous la transmettre.',
     reopen:'Ouvrir WhatsApp à nouveau', copy:'Copier le message', copied:'Message copié ✓', copy_fail:'Sélectionnez le texte et copiez-le.', back_menu:'Retour à la carte', order_no:'Commande', msg_label:'Message de la commande',
-    foot_about:'Bubble tea préparé à la minute. Perles de tapioca roulées chaque matin, cuites par petites fournées.', foot_shop:'Boutique', foot_hours:'Horaires', foot_delivery:'Livraison',
-    foot_del:'1 000 FCFA dans un rayon de 3 km<br>Offerte dès 15 000 FCFA d’achat', foot_legal:'© 2026 Perle · Site de démonstration', foot_cups:'Les gobelets sont recyclables, rapportez-les pour 100 FCFA de remise.',
+    foot_about:'Bubble tea préparé à la minute. Perles de tapioca roulées chaque matin, cuites par petites fournées.', foot_shop:'Nous trouver', foot_hours:'Horaires', foot_delivery:'Livraison',
+    foot_del:'1 000 FCFA dans un rayon de 3 km<br>Offerte dès 15 000 FCFA d’achat', foot_legal:'© 2026 Perle', foot_allergens:'Allergènes : les boissons lactées contiennent du lait. Composition détaillée sur demande.', foot_cups:'Les gobelets sont recyclables, rapportez-les pour 100 FCFA de remise.',
     hours:'<li>Lun – Jeu · 11:00 – 21:00</li><li>Ven – Sam · 11:00 – 23:00</li><li>Dim · 12:00 – 20:00</li>',
   },
   en:{
-    nav_home:'Home', nav_menu:'Menu', nav_shop:'Shop', nav_order:'Order', open_cart:'Open your order',
+    nav_home:'Home', nav_menu:'Menu', nav_shop:'Find us', nav_order:'Order', open_cart:'Open your order',
     lang_btn:'FR', lang_aria:'Passer en français',
     see_menu:'See the menu', scroll:'Order', choose:'Choose a drink', prev:'Previous drink', next:'Next drink',
     side_title:'Slowly brewed,<br><em>served ice cold</em>',
     side_text:'Teas cold-brewed for twelve hours, whole milk, fruit pressed every morning. Tapioca pearls are cooked fresh every four hours.',
     fresh_now:'Pearls just cooked', fresh:x=>`Pearls cooked ${x} ago`,
     open:'Open', closed:'Closed', until:h=>`closes at ${h}`, opens_today:h=>`opens at ${h}`, opens_tomorrow:h=>`opens tomorrow at ${h}`,
-    closed_note:'The shop is closed right now: your order will be prepared as soon as we open.',
+    closed_note:h=>`Shop closed (${h}). You can pre-order: we will prepare it as soon as we open.`,
     menu_title:'Menu', menu_sub:'Pick your drink and its size, we take care of the rest.', search:'Search for a drink',
     empty_grid:q=>`No drink matches “${q}”. Try “matcha” or “strawberry”.`,
     size:'Size', add:'Add', added:'Added ✓', less:'Remove one', more:'Add one',
@@ -509,11 +520,11 @@ const STR = {
     address:'Area, street and landmark', address_opt:'Notes for the rider (optional)', address_ph:'e.g. Agoè, near the pharmacy, blue gate',
     payment:'Payment', pay_cash_d:'Cash on delivery', pay_cash_p:'Cash at the counter',
     note:'Note for the shop (optional)', note_ph:'e.g. light ice, call when you arrive…',
-    send:'Send order on WhatsApp', required:'Required', phone_err:'Incomplete number', addr_err:'Share your location or type your address.',
+    send:'Send order on WhatsApp', send_pre:'Send pre-order on WhatsApp', required:'Required', phone_err:'Incomplete number', addr_err:'Share your location or type your address.',
     done_title:'Last step in WhatsApp', done_text:'WhatsApp opens with your order already written. Tap Send to pass it to us.',
     reopen:'Open WhatsApp again', copy:'Copy message', copied:'Message copied ✓', copy_fail:'Select the text and copy it.', back_menu:'Back to the menu', order_no:'Order', msg_label:'Order message',
-    foot_about:'Bubble tea made to order. Tapioca pearls rolled every morning, cooked in small batches.', foot_shop:'Shop', foot_hours:'Opening hours', foot_delivery:'Delivery',
-    foot_del:'1,000 FCFA within 3 km<br>Free from 15,000 FCFA', foot_legal:'© 2026 Perle · Demo website', foot_cups:'Our cups are recyclable: bring one back for 100 FCFA off.',
+    foot_about:'Bubble tea made to order. Tapioca pearls rolled every morning, cooked in small batches.', foot_shop:'Find us', foot_hours:'Opening hours', foot_delivery:'Delivery',
+    foot_del:'1,000 FCFA within 3 km<br>Free from 15,000 FCFA', foot_legal:'© 2026 Perle', foot_allergens:'Allergens: milk-based drinks contain milk. Full ingredients on request.', foot_cups:'Our cups are recyclable: bring one back for 100 FCFA off.',
     hours:'<li>Mon – Thu · 11:00 – 21:00</li><li>Fri – Sat · 11:00 – 23:00</li><li>Sun · 12:00 – 20:00</li>',
   }
 };
@@ -531,12 +542,12 @@ const thumbs = document.getElementById('thumbs');
 DRINKS.forEach((d,i) => {
   const b = document.createElement('button');
   b.className='thumb'; b.role='tab'; b.setAttribute('aria-selected', i===0);
-  b.innerHTML = `<img src="img/${d.id}-cut-t.webp?v=3" alt="">`;
+  b.innerHTML = `<img src="img/${d.id}-cut-t.webp?v=4" alt="">`;
   b.onclick = () => { go(i); restartAuto(); };
   thumbs.appendChild(b);
 });
 // précharge
-DRINKS.forEach(d => { const im = new Image(); im.src = `img/${d.id}-cut.webp?v=3`; });
+DRINKS.forEach(d => { const im = new Image(); im.src = `img/${d.id}-cut.webp?v=4`; });
 
 function setMarquee(d){
   const t = document.getElementById('marquee');
@@ -549,7 +560,7 @@ function fillText(d,i){
   sw[0].textContent = tx(d,'name'); sw[1].textContent = tx(d,'sub');
   document.getElementById('hDesc').textContent = tx(d,'desc');
   document.getElementById('counter').textContent = `0${i+1} / 0${DRINKS.length}`;
-  imgs[front].alt = tx(d,'full');
+  imgs[front].alt = 'Bubble tea ' + tx(d,'full');
 }
 function applyTheme(t, dur){
   const vars = {'--bg1':t.bg1,'--bg2':t.bg2,'--glow':t.glow,'--hero-fg':t.fg,'--accent':t.accent,'--accent-ink':t.ink,'--tint':t.tint};
@@ -568,7 +579,7 @@ function go(i){
   gl && gl.setTheme(i);
 
   const next = imgs[1-front], prev = imgs[front];
-  next.src = `img/${d.id}-cut.webp?v=3`; next.alt = tx(d,'full'); prev.alt = '';
+  next.src = `img/${d.id}-cut.webp?v=4`; next.alt = 'Bubble tea ' + tx(d,'full'); prev.alt = '';
   next.style.height = (d.h || 100) + '%';
   const swaps = document.querySelectorAll('.hero-copy .swap');
   if (reduce){
@@ -695,7 +706,7 @@ function makeScene(canvas){
 
   // perles de tapioca (toujours présentes)
   const pearlMat = new T.MeshPhysicalMaterial({color:0x120704, roughness:.14, metalness:0, clearcoat:1, clearcoatRoughness:.06, reflectivity:.6});
-  const PN = innerWidth < 720 ? 12 : 30;
+  const PN = innerWidth < 720 ? 8 : 30;
   const pearls = new T.InstancedMesh(new T.SphereGeometry(.34, 32, 24), pearlMat, PN);
   const pearlData = field(PN);
   world.add(pearls);
@@ -802,7 +813,7 @@ function renderGrid(animate = true){
     const o = picks[d.id];
     const el = document.createElement('article'); el.className='card'; el.dataset.id=d.id;
     el.innerHTML = `
-      <div class="card-media" style="--c:${d.theme.card}"><img src="img/${d.id}-cut.webp?v=3" alt="${esc(tx(d,'full'))}" loading="lazy"><span class="tag">${esc(tx(d,'label'))}</span></div>
+      <div class="card-media" style="--c:${d.theme.card}"><img src="img/${d.id}-cut.webp?v=4" alt="Bubble tea ${esc(tx(d,'full'))}" loading="lazy"><span class="tag">${esc(tx(d,'label'))}</span></div>
       <div class="card-body">
         <div class="card-title"><h3>${esc(tx(d,'full'))}</h3><span class="price">${eur(unit(d,o))}</span></div>
         <p class="card-desc">${esc(tx(d,'desc'))}</p>
@@ -897,7 +908,8 @@ const dirUrl = g => `https://www.google.com/maps/dir/?api=1&destination=${g.lat}
 // message envoyé à la boutique (toujours en français)
 function buildMsg(){
   const t = totals(), L = [];
-  L.push(`Bonjour Perle ! Nouvelle commande ${orderNum}`, '');
+  const st = shopStatus();
+  L.push(st.open ? `Bonjour Perle ! Nouvelle commande ${orderNum}` : `Bonjour Perle ! Précommande ${orderNum} (boutique fermée, à préparer à l’ouverture)`, '');
   cart.items.forEach(x => { const d = DRINKS.find(d=>d.id===x.id);
     L.push(`• ${x.qty} × ${d.full} (taille ${x.size}, ${x.size==='M'?'500':'700'} ml) : ${fcfa(unit(d,x)*x.qty)}`); });
   L.push('', `Sous-total : ${fcfa(t.sub)}`);
@@ -939,11 +951,11 @@ function renderCart(){
   document.getElementById('cartStep').textContent = step==='info' ? S().info_step : step==='done' ? '' : S().cart_step;
   if (step==='done') return renderDone();
   if (step==='info') return renderInfo(t);
-  const closedNote = shopStatus().open ? '' : `<p class="closed-note">${S().closed_note}</p>`;
+  const ss = shopStatus(), closedNote = ss.open ? '' : `<p class="closed-note">${S().closed_note(ss.long)}</p>`;
   cartBody.innerHTML = `
     <div class="modes" role="group" aria-label="${S().pickup}">${MODES.map(m=>`<button data-m="${m.id}" aria-pressed="${cart.mode===m.id}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${m.icon}</svg>${m[LANG]}</button>`).join('')}</div>
     ${cart.items.length ? `<ul class="lines">${cart.items.map((x,i)=>{ const d = DRINKS.find(d=>d.id===x.id); return `
-      <li class="line" style="--c:${d.theme.card}"><img src="img/${d.id}-cut-t.webp?v=3" alt="">
+      <li class="line" style="--c:${d.theme.card}"><img src="img/${d.id}-cut-t.webp?v=4" alt="">
         <div style="min-width:0"><h4>${esc(tx(d,'full'))}</h4><p>${S().size} ${x.size} · ${x.size==='M'?'500 ml':'700 ml'} · ${eur(unit(d,x))}${x.qty>1?' '+S().each:''}</p></div>
         <div class="line-right"><span class="lp">${eur(unit(d,x)*x.qty)}</span>
           <div class="stepper"><button data-i="${i}" data-q="-1" aria-label="${S().less}">−</button><output>${x.qty}</output><button data-i="${i}" data-q="1" aria-label="${S().more}">+</button></div></div>
@@ -991,8 +1003,8 @@ function renderInfo(t){
       <div class="field"><span class="fs-label">${S().payment}</span>
         <div class="pays" role="group" aria-label="${S().payment}">${PAYS.map(p=>`<button type="button" data-p="${esc(p)}" aria-pressed="${client.pay===p}">${esc(payLabel(p))}</button>`).join('')}</div></div>
       ${field('note', S().note, 'text', 'off', S().note_ph)}
-      ${shopStatus().open ? '' : `<p class="closed-note">${S().closed_note}</p>`}
-      <a class="order wa" id="sendWa" href="${esc(waUrl())}" target="_blank" rel="noopener">${WA_ICON}${S().send}</a>
+      ${shopStatus().open ? '' : `<p class="closed-note">${S().closed_note(shopStatus().long)}</p>`}
+      <a class="order wa" id="sendWa" href="${esc(waUrl())}" target="_blank" rel="noopener">${WA_ICON}${shopStatus().open ? S().send : S().send_pre}</a>
     </form>`;
   const send = document.getElementById('sendWa');
   const refresh = () => { send.href = waUrl(); };
