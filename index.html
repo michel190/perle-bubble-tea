@@ -490,7 +490,11 @@ const STR = {
     each:'l’unité', subtotal:'Sous-total', delivery:'Livraison', free_from:'(offerte dès 15 000 FCFA)', free:'Offerte', total:'Total', cont:'Continuer',
     back:'← Modifier la commande', first:'Prénom', last:'Nom', phone:'Téléphone (WhatsApp)', phone_ph:'Ex. 90 00 00 00',
     where:'Où vous livrer ?', geo_btn:'Partager ma position exacte', geo_again:'Position partagée ✓ · mettre à jour', geo_wait:'Recherche de votre position…',
-    geo_ok:a=>`Position enregistrée, précision ±${a} m.`, geo_check:'Voir sur la carte', geo_err:'Votre navigateur n’a pas donné la position. Indiquez votre quartier ci-dessous, puis envoyez votre position depuis WhatsApp (trombone → Position) juste après la commande.',
+    geo_ok:a=>`Position enregistrée, précision ±${a} m.`, geo_check:'Voir sur la carte', geo_err:'Votre navigateur n’a pas donné la position.', geo_fallback:'En attendant, indiquez votre quartier ci-dessous : vous pourrez aussi envoyer votre position depuis WhatsApp (trombone → Position) juste après la commande.',
+    geo_denied_ios:'Position refusée. Sur iPhone : Réglages → Confidentialité et sécurité → Service de localisation → activé, puis Sites web Safari → « Lorsque l’app est active ». Dans Safari, touchez « aA » → Réglages du site web → Position → Autoriser, puis réessayez.',
+    geo_denied_android:'Position refusée. Touchez le cadenas à gauche de l’adresse du site → Autorisations → Position → Autoriser, et vérifiez que la localisation du téléphone est activée, puis réessayez.',
+    geo_unavail:'Position introuvable : activez la localisation (GPS) du téléphone puis réessayez.', geo_timeout:'La recherche de position a pris trop de temps. Rapprochez-vous d’une fenêtre et réessayez.',
+    geo_inapp:'Vous avez ouvert le site depuis une autre application (WhatsApp, Instagram…), qui bloque la position. Ouvrez-le dans Safari ou Chrome (menu ⋯ → Ouvrir dans le navigateur).', geo_https:'La position ne fonctionne que sur l’adresse sécurisée du site (https).',
     address:'Quartier, rue et repère', address_opt:'Précisions pour le livreur (facultatif)', address_ph:'Ex. Agoè, près de la pharmacie, portail bleu',
     payment:'Paiement', pay_cash_d:'Espèces à la livraison', pay_cash_p:'Espèces au comptoir',
     note:'Note pour la boutique (facultatif)', note_ph:'Ex. peu de glaçons, appeler en arrivant…',
@@ -519,7 +523,11 @@ const STR = {
     each:'each', subtotal:'Subtotal', delivery:'Delivery', free_from:'(free from 15,000 FCFA)', free:'Free', total:'Total', cont:'Continue',
     back:'← Edit order', first:'First name', last:'Last name', phone:'Phone (WhatsApp)', phone_ph:'e.g. 90 00 00 00',
     where:'Where should we deliver?', geo_btn:'Share my exact location', geo_again:'Location shared ✓ · update', geo_wait:'Finding your location…',
-    geo_ok:a=>`Location saved, accurate to ±${a} m.`, geo_check:'View on map', geo_err:'Your browser did not share your location. Type your area below, then send your location from WhatsApp (paperclip → Location) right after the order.',
+    geo_ok:a=>`Location saved, accurate to ±${a} m.`, geo_check:'View on map', geo_err:'Your browser did not share your location.', geo_fallback:'Meanwhile, type your area below: you can also send your location from WhatsApp (paperclip → Location) right after the order.',
+    geo_denied_ios:'Location refused. On iPhone: Settings → Privacy & Security → Location Services → on, then Safari Websites → “While Using the App”. In Safari, tap “aA” → Website Settings → Location → Allow, then try again.',
+    geo_denied_android:'Location refused. Tap the lock left of the site address → Permissions → Location → Allow, check that phone location is on, then try again.',
+    geo_unavail:'Location not found: turn on your phone’s location (GPS) and try again.', geo_timeout:'Finding your location took too long. Move closer to a window and try again.',
+    geo_inapp:'You opened the site from another app (WhatsApp, Instagram…), which blocks location. Open it in Safari or Chrome (⋯ menu → Open in browser).', geo_https:'Location only works on the secure (https) address of the site.',
     address:'Area, street and landmark', address_opt:'Notes for the rider (optional)', address_ph:'e.g. Agoè, near the pharmacy, blue gate',
     payment:'Payment', pay_cash_d:'Cash on delivery', pay_cash_p:'Cash at the counter',
     note:'Note for the shop (optional)', note_ph:'e.g. light ice, call when you arrive…',
@@ -1041,15 +1049,35 @@ function renderInfo(t){
 
 function locate(){
   const st = document.getElementById('geoStatus'), btn = document.getElementById('geoBtn');
-  const fail = () => { btn.disabled = false; st.textContent = S().geo_err; document.getElementById('f-addr')?.focus(); };
-  if (!('geolocation' in navigator)) return fail();
+  const isApple = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) && 'ontouchend' in document;
+  const inApp = /FBAN|FBAV|Instagram|WhatsApp|Line\/|TikTok|Snapchat/i.test(navigator.userAgent);
+  const fail = code => {
+    btn.disabled = false;
+    let msg = S().geo_err;
+    if (!window.isSecureContext) msg = S().geo_https;
+    else if (inApp) msg = S().geo_inapp;
+    else if (code === 1) msg = isApple ? S().geo_denied_ios : S().geo_denied_android;
+    else if (code === 2) msg = S().geo_unavail;
+    else if (code === 3) msg = S().geo_timeout;
+    st.textContent = msg + ' ' + S().geo_fallback;
+    document.getElementById('f-addr')?.focus();
+  };
+  if (!('geolocation' in navigator)) return fail(0);
   btn.disabled = true; st.textContent = S().geo_wait;
+  const ok = p => {
+    geo = {lat:+p.coords.latitude.toFixed(6), lng:+p.coords.longitude.toFixed(6), acc:p.coords.accuracy || 0};
+    delete errs.addr; renderCart();
+  };
+  // 1er essai : GPS précis ; si trop long ou indisponible, 2e essai plus souple (réseau / Wi-Fi)
+  const second = e => {
+    if (e && e.code === 1) return fail(1);
+    try {
+      navigator.geolocation.getCurrentPosition(ok, e2 => fail(e2 && e2.code), {enableHighAccuracy:false, timeout:20000, maximumAge:120000});
+    } catch { fail(0); }
+  };
   try {
-    navigator.geolocation.getCurrentPosition(p => {
-      geo = {lat:+p.coords.latitude.toFixed(6), lng:+p.coords.longitude.toFixed(6), acc:p.coords.accuracy || 0};
-      delete errs.addr; renderCart();
-    }, fail, {enableHighAccuracy:true, timeout:15000, maximumAge:0});
-  } catch { fail(); }
+    navigator.geolocation.getCurrentPosition(ok, second, {enableHighAccuracy:true, timeout:12000, maximumAge:30000});
+  } catch { fail(0); }
 }
 
 function renderDone(){
