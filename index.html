@@ -246,6 +246,7 @@ h1 em{display:block}
 .err:empty{display:none}
 .geo{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:12px;border:1.5px dashed var(--accent);font-weight:700;font-size:13px;background:color-mix(in srgb,var(--accent) 8%,var(--paper))}
 .geo.ok{border-style:solid;border-color:#2F8F55;background:#EAF6EE;color:#1E6B3D}
+.geo.low{border-color:#C98A1B;background:#FFF6E5;color:#7A4E00}
 .geo:disabled{opacity:.6;cursor:progress}
 .geo-status{margin:0;font-size:12px;color:var(--ink-soft)}
 .geo-status:empty{display:none}
@@ -490,7 +491,8 @@ const STR = {
     each:'l’unité', subtotal:'Sous-total', delivery:'Livraison', free_from:'(offerte dès 15 000 FCFA)', free:'Offerte', total:'Total', cont:'Continuer',
     back:'← Modifier la commande', first:'Prénom', last:'Nom', phone:'Téléphone (WhatsApp)', phone_ph:'Ex. 90 00 00 00',
     where:'Où vous livrer ?', geo_btn:'Partager ma position exacte', geo_again:'Position partagée ✓ · mettre à jour', geo_wait:'Recherche de votre position…',
-    geo_ok:a=>`Position enregistrée, précision ±${a} m.`, geo_check:'Voir sur la carte', geo_err:'Votre navigateur n’a pas donné la position.', geo_fallback:'En attendant, indiquez votre quartier ci-dessous : vous pourrez aussi envoyer votre position depuis WhatsApp (trombone → Position) juste après la commande.',
+    geo_ok:a=>a<=5 ? `Position précise enregistrée (±${a} m).` : `Position enregistrée à ±${a} m seulement (objectif : 5 m). Pour plus de précision, mettez-vous dehors ou près d’une fenêtre, vérifiez que « Position exacte » est activée pour Safari ou Chrome dans les réglages, puis touchez « mettre à jour ».`,
+    geo_improving:a=>`Recherche du signal GPS… précision actuelle ±${a} m (objectif 5 m).`, geo_check:'Voir sur la carte', geo_err:'Votre navigateur n’a pas donné la position.', geo_fallback:'En attendant, indiquez votre quartier ci-dessous : vous pourrez aussi envoyer votre position depuis WhatsApp (trombone → Position) juste après la commande.',
     geo_denied_ios:'Position refusée. Sur iPhone : Réglages → Confidentialité et sécurité → Service de localisation → activé, puis Sites web Safari → « Lorsque l’app est active ». Dans Safari, touchez « aA » → Réglages du site web → Position → Autoriser, puis réessayez.',
     geo_denied_android:'Position refusée. Touchez le cadenas à gauche de l’adresse du site → Autorisations → Position → Autoriser, et vérifiez que la localisation du téléphone est activée, puis réessayez.',
     geo_unavail:'Position introuvable : activez la localisation (GPS) du téléphone puis réessayez.', geo_timeout:'La recherche de position a pris trop de temps. Rapprochez-vous d’une fenêtre et réessayez.',
@@ -523,7 +525,8 @@ const STR = {
     each:'each', subtotal:'Subtotal', delivery:'Delivery', free_from:'(free from 15,000 FCFA)', free:'Free', total:'Total', cont:'Continue',
     back:'← Edit order', first:'First name', last:'Last name', phone:'Phone (WhatsApp)', phone_ph:'e.g. 90 00 00 00',
     where:'Where should we deliver?', geo_btn:'Share my exact location', geo_again:'Location shared ✓ · update', geo_wait:'Finding your location…',
-    geo_ok:a=>`Location saved, accurate to ±${a} m.`, geo_check:'View on map', geo_err:'Your browser did not share your location.', geo_fallback:'Meanwhile, type your area below: you can also send your location from WhatsApp (paperclip → Location) right after the order.',
+    geo_ok:a=>a<=5 ? `Precise location saved (±${a} m).` : `Location saved at only ±${a} m (target: 5 m). For better accuracy, go outside or near a window, make sure “Precise Location” is on for Safari or Chrome in your settings, then tap “update”.`,
+    geo_improving:a=>`Getting GPS signal… current accuracy ±${a} m (target 5 m).`, geo_check:'View on map', geo_err:'Your browser did not share your location.', geo_fallback:'Meanwhile, type your area below: you can also send your location from WhatsApp (paperclip → Location) right after the order.',
     geo_denied_ios:'Location refused. On iPhone: Settings → Privacy & Security → Location Services → on, then Safari Websites → “While Using the App”. In Safari, tap “aA” → Website Settings → Location → Allow, then try again.',
     geo_denied_android:'Location refused. Tap the lock left of the site address → Permissions → Location → Allow, check that phone location is on, then try again.',
     geo_unavail:'Location not found: turn on your phone’s location (GPS) and try again.', geo_timeout:'Finding your location took too long. Move closer to a window and try again.',
@@ -1008,7 +1011,7 @@ function renderInfo(t){
       <div class="row2">${field('first', S().first, 'text', 'given-name')}${field('last', S().last, 'text', 'family-name')}</div>
       ${field('phone', S().phone, 'tel', 'tel', S().phone_ph)}
       ${deliv ? `<div class="field"><span class="fs-label">${S().where}</span>
-          <button type="button" class="geo${geo?' ok':''}" id="geoBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>${geo ? S().geo_again : S().geo_btn}</button>
+          <button type="button" class="geo${geo ? (geo.acc<=5 ? ' ok' : ' ok low') : ''}" id="geoBtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>${geo ? S().geo_again : S().geo_btn}</button>
           <p class="geo-status" id="geoStatus" aria-live="polite">${geoTxt}</p></div>
         ${field('addr', geo ? S().address_opt : S().address, 'text', 'street-address', S().address_ph)}` : ''}
       <div class="field"><span class="fs-label">${S().payment}</span>
@@ -1063,20 +1066,27 @@ function locate(){
     document.getElementById('f-addr')?.focus();
   };
   if (!('geolocation' in navigator)) return fail(0);
+  // On écoute le GPS jusqu'à 30 s et on garde la meilleure mesure ; on s'arrête dès ±5 m.
+  const TARGET = 5, MAX = 30000;
+  let best = null, wid = null, timer = null, done = false;
   btn.disabled = true; st.textContent = S().geo_wait;
-  const ok = p => {
-    geo = {lat:+p.coords.latitude.toFixed(6), lng:+p.coords.longitude.toFixed(6), acc:p.coords.accuracy || 0};
-    delete errs.addr; renderCart();
-  };
-  // 1er essai : GPS précis ; si trop long ou indisponible, 2e essai plus souple (réseau / Wi-Fi)
-  const second = e => {
-    if (e && e.code === 1) return fail(1);
-    try {
-      navigator.geolocation.getCurrentPosition(ok, e2 => fail(e2 && e2.code), {enableHighAccuracy:false, timeout:20000, maximumAge:120000});
-    } catch { fail(0); }
+  const stop = () => { if (wid !== null) navigator.geolocation.clearWatch(wid); clearTimeout(timer); };
+  const finish = () => {
+    if (done) return; done = true; stop();
+    if (!best) return fail(3);
+    geo = best; delete errs.addr; renderCart();
   };
   try {
-    navigator.geolocation.getCurrentPosition(ok, second, {enableHighAccuracy:true, timeout:12000, maximumAge:30000});
+    wid = navigator.geolocation.watchPosition(p => {
+      const acc = p.coords.accuracy || 999;
+      if (!best || acc < best.acc) best = {lat:+p.coords.latitude.toFixed(6), lng:+p.coords.longitude.toFixed(6), acc};
+      st.textContent = S().geo_improving(Math.round(best.acc));
+      if (best.acc <= TARGET) finish();
+    }, e => {
+      if (e && e.code === 1){ done = true; stop(); return fail(1); }
+      if (!best && e && e.code === 2){ done = true; stop(); return fail(2); }
+    }, {enableHighAccuracy:true, maximumAge:0, timeout:MAX});
+    timer = setTimeout(finish, MAX);
   } catch { fail(0); }
 }
 
